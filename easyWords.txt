@@ -1,0 +1,11 @@
+cat
+horse
+barn
+milk
+apple
+phone
+wifi
+horse
+grape
+car
+
