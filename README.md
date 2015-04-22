@@ -19,7 +19,7 @@ System Requirements:
 Windows?
 
 Group Members:
-Rebecca Robb (tabularasa7) and Michelle De Nardis (mdenardis)
+Rebecca Robb (tabularasa7), Michelle De Nardis (mdenardis), and Rory Teehan (a4nacation).
 
 Contributers:
 None so far.
