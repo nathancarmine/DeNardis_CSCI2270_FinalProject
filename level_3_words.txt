@@ -1,0 +1,10 @@
+climb
+silver
+escape
+bucket
+shadow
+attack
+decode
+pistol
+whisper
+incline
