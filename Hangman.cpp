@@ -123,8 +123,10 @@ void Hangman::scrambler() {
 			lettersVector.push_back(letters.substr(i, 1));    //memory snapshot: integer vector created {c, a, t}
 		}
 
+        vector<string> underscores;
 		for (int i=0; i<letters.size(); i++) {
-            cout<<"_";
+            underscores.push_back("_");
+            cout<<underscores[i];
 		}
 
 		cout << endl;
@@ -145,12 +147,9 @@ void Hangman::scrambler() {
                 if (guess == lettersVector[i]){
                     cout<<"That's correct! Guess another letter or solve the word."<<endl;
                     int index = i;
-                    for (int i=0; i<index; i++){
-                        cout<<"_";
-                    }
-                    cout<<lettersVector[i];
-                    for (int i=index+1; i<letters.size(); i++) {
-                        cout<<"_";
+                    underscores[index] = lettersVector[i];
+                    for(int i=0; i<underscores.size(); i++){
+                        cout<<underscores[i];
                     }
                     cout<<endl;
                 }
