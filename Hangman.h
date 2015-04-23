@@ -3,6 +3,12 @@
 #pragma once              //Necessary preprocessor directives for following components
 #include <string>
 
+struct *node{
+    std::string bodyPart;
+    node* next;
+    node* previous;
+}
+
 class Hangman {  //Declares a class called Hangman with private data members and public member functions
 
     private:
@@ -10,6 +16,9 @@ class Hangman {  //Declares a class called Hangman with private data members and
         std::string wordsFile;
         int level;
         int totalTries;
+        string bodyQueue[6];
+        node* head;
+        node* tail;
 
 	public:
         Hangman();                //Default constructor
@@ -24,6 +33,8 @@ class Hangman {  //Declares a class called Hangman with private data members and
         void loadWords();
         void scrambler();
         void results() const;
+        void enqueueHangman();
+        bool queueisFull();
 };
 
 
