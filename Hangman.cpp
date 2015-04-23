@@ -10,10 +10,14 @@ vector<string> words; //These vectors are used in most of the functions below, h
 
 Hangman::Hangman() {
     totalTries = 0;
+    queueSize = 6;
+    bodyQueue = new string[queueSize];
+    queueTail = 0;
+    queueHead = 0;
 }
 
 Hangman::~Hangman() {
-    //dtor
+    delete []bodyQueue;
 }
 
 /*This function prints the directions of the game to the console, keeps the main.cpp neat to define them here.*/
@@ -131,7 +135,7 @@ void Hangman::scrambler() {
 
 		cout << endl;
 		string guess;
-
+        vector<string> hangman;
 		int incorrectGuesses = 0; //Initializes local variables to record # of tries to guess letter
 
 		while (guess != words[i]) {                 //while loop runs while user's guess is not the word
@@ -153,6 +157,19 @@ void Hangman::scrambler() {
                     }
                     cout<<endl;
                 }
+                else
+                {
+                    cout <<"WRONG! The following body part was added to your hangman: " << endl;
+                    while(!queueisEmpty())
+                    {
+                        string bodypart = dequeueHangman();
+                        for(int i=0; i <hangman.size(); i++)
+                        {
+                            hangman.push_back(bodypart);
+                            cout << hangman[i] << endl;
+                        }
+                    }
+                }
            }
 		}
 
@@ -160,6 +177,52 @@ void Hangman::scrambler() {
 		//totalTries += tries;      //sum of tries used per level
 
 	} //end of for loop body, for loop ends when last word in words text file is unscrambled
+}
+
+void Hangman::enqueueHangman()
+{
+    string body;
+    ifstream bodyFile("body.txt");
+
+    int i = 0;
+    while(!queueisFull())
+    {
+        getline(bodyFile, body, ',');
+        bodyQueue[queueTail] = body;
+        queueTail++;
+    }
+}
+
+string Hangman::dequeueHangman()
+{
+    string dequeueText;
+    if(queueHead == queueSize-1)
+    {
+        queueHead = 0;
+    }
+    else
+    {
+        dequeueText = bodyQueue[queueHead];
+        bodyQueue[queueHead] = " ";
+        queueHead++;
+    }
+    return dequeueText;
+}
+
+bool Hangman::queueisFull()
+{
+    if(queueTail == queueSize-1)
+        return true;
+    else
+        return false;
+}
+
+bool Hangman::queueisEmpty()
+{
+    if(queueHead == queueTail)
+        return true;
+    else
+        return false;
 }
 
 /*Function to print results based on final score.*/
