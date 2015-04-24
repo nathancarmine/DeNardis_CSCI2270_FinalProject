@@ -22,10 +22,19 @@ Hangman::~Hangman() {
 
 /*This function prints the directions of the game to the console, keeps the main.cpp neat to define them here.*/
 void Hangman::loadDirections() const {
-	cout << "To play the game, choose a level ranging from 1 to 8 - the higher the level the greater the difficulty. ";
-	cout << "To begin the game you must guess a letter. With each\nincorrect guess a body part will be added to the hangman's tree." << endl;
+	cout << "\nDirections:" << endl;
+	cout << "  -Choose a difficulty level - (1) Easy (2) Medium or (3) Hard" << endl;
+	cout << "  -I will choose a word based on the difficulty you've chosen" << endl;
+	cout << "  -Once I've chosen a word, you can guess a letter" << endl;
+	cout << "  -For each incorrect guess I will add a body part to the hanged man" << endl;
+	cout << "  -I'll keep track of how many words you guess correctly" << endl;
+	cout << "  -The object is to see how many words you guess before I\n   complete my drawing (6 incorrect guesses)" << endl;
+	cout << "\nGood Luck and try to avoid the noose!\n" << endl;
+	/*
+	cout << "When prompted you must guess a letter. With each incorrect guess a body part will be added to the hangman's tree." << endl;
 	cout << "You are allowed 5 incorrect guesses, but at 6 incorrect guesses you will lose\nthe game and be hung." << endl;
-	cout << "Try and avoid the noose. Good Luck!" << endl << endl;
+	cout << "Try to avoid the noose. Good Luck!" << endl << endl;
+	*/
 
 }
 
@@ -46,6 +55,7 @@ void Hangman::chooseLevel() {
 	int lev;
 	string s;
 	while (true) {
+        cout << "(1) Easy (2) Medium or (3) Hard: ";
 	 	cin >> lev;
 		level = lev;
 	    if (level == 1) {
@@ -58,26 +68,6 @@ void Hangman::chooseLevel() {
 		}
 		else if (level == 3) {
 			wordsFile = "level_3_words.txt";
-			break;
-		}
-		else if (level == 4) {
-			wordsFile = "level_4_words.txt";
-			break;
-		}
-		else if (level == 5) {
-			wordsFile = "level_5_words.txt";
-			break;
-		}
-		else if (level == 6) {
-			wordsFile = "level_6_words.txt";
-			break;
-		}
-		else if (level == 7) {
-			wordsFile = "level_7_words.txt";
-			break;
-		}
-		else if (level == 8) {
-			wordsFile = "level_8_words.txt";
 			break;
 		}
 		else if (cin.fail()) {
@@ -116,7 +106,7 @@ void Hangman::loadWords() {
 /*This function is the "meat" of the program. I couldn't figure out how to simplify it without messing up the entire game, so I'll describe each
 step within the function.*/
 void Hangman::scrambler() {
-
+//we need a while loop for this whole function so that when the word is completed it stops asking for guesses
 	for (int i=0; i<words.size(); i++) {  //This loop takes a word from the words vector and puts it into a string called letters,
 		string letters;                   //thus each letter of the word occupies its own index of the string. Note that the rest of the code
 		letters = words[i];               //is contained in the body of this for loop, which I found to be necessary for the game to operate proper
@@ -140,39 +130,52 @@ void Hangman::scrambler() {
 
 		while (guess != words[i]) {                 //while loop runs while user's guess is not the word
 
-			cout<<"Guess: ";
+			cout<<"Guess a letter: ";
 			cin >> guess;                           //allows user to input a string guess
 			//Following for loop for converting uppercase to lower case found at http://www.cplusplus.com/forum/beginner/613/.
 			for (int i=0; i<guess.length(); i++) {  //allows user to enter upper or lowercase letters
 				guess[i]=tolower(guess[i]);         //converts uppercase letters to lowercase letters
 			}
-            for (int i=0; i<letters.size(); i++){
 
-                if (guess == lettersVector[i]){
-                    cout<<"That's correct! Guess another letter or solve the word."<<endl;
+			//when the for loop is here it would check the letter for as many letters as in the word
+			//and output "WRONG" x number of times
+			int checking = 0;
+			for (int i = 0; i < letters.size(); i++)
+            {
+                if (guess == lettersVector[i])
+                {
+                    checking++;
                     int index = i;
                     underscores[index] = lettersVector[i];
-                    for(int i=0; i<underscores.size(); i++){
-                        cout<<underscores[i];
-                    }
-                    cout<<endl;
                 }
-                else
+            }
+            if(checking > 0)
+            {
+                cout<<"You guessed a correct letter, keep going!"<<endl;
+                int index = i;
+                underscores[index] = lettersVector[i];
+            }
+            else if(checking <= 0)
+            {
+                cout <<"WRONG! That letter is not part of the word." << endl;
+                while(!queueisEmpty())
                 {
-                    cout <<"WRONG! The following body part was added to your hangman: " << endl;
-                    while(!queueisEmpty())
+                    string bodypart = dequeueHangman();
+                    for(int i=0; i <hangman.size(); i++)
                     {
-                        string bodypart = dequeueHangman();
-                        for(int i=0; i <hangman.size(); i++)
-                        {
-                            hangman.push_back(bodypart);
-                            cout << hangman[i] << endl;
-                        }
+                        hangman.push_back(bodypart);
+                        cout << hangman[i] << endl;
                     }
                 }
-           }
-		}
+            }
 
+            //this should be printed at the end of every guess no matter whether the guess was right or not
+            for(int i=0; i<underscores.size(); i++)
+            {
+                cout<<underscores[i];
+            }
+            cout<<endl;  //adds an endline after the printout of the word
+		}
 
 		//totalTries += tries;      //sum of tries used per level
 

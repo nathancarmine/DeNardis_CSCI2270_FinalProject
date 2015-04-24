@@ -1,6 +1,6 @@
 /* CSCI2270 Final Project
  *
- * Authors: Michelle De Nardis and Rebecca Robb
+ * Authors: Michelle De Nardis and Rebecca Robb and Rory Teehan
  *
  * For the project description, please refer to README.txt in the project file.
 */
@@ -14,17 +14,17 @@
 using namespace std;
 
 int main() {
-	Hangman game;              //Instantiates object game of class Game.
+	Hangman game;           //Instantiates object game of class Game.
 	srand(time(NULL));      //Scrambles the words differently each time the game is played.
 
-	cout << "Welcome to the Hangman Game!" << endl << endl;  //Prints message to console.
+	cout << "Welcome to the Hangman Game!" << endl;            //Prints message to console.
 	game.loadDirections();                                     //Calls loadDirections function on object game, prints directions to console.
 	cout << "Please enter your name to begin the game: ";
 	game.enterName();                                          //Calls enterName function, allows user to enter their name.
 	cout << endl;
 
 	cout << "Hello " << game.getName() << ", please choose a level to begin." << endl;           //Calls getName function which prints user's name to console.
-	cout << "Enter 1 for Level 1, 2 for Level 2, 3 for Level 3, and so forth up to Level 8: ";
+	cout << "Choose a difficulty level - ";
 	game.chooseLevel();                                                                          //Calls chooseLevel function which allows user to select level, level is assigned appropriate text files.
 	cout << endl;
 
