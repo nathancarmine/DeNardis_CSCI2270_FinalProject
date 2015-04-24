@@ -105,6 +105,7 @@ void Hangman::loadWords() {
 
 /*This function is the "meat" of the program. I couldn't figure out how to simplify it without messing up the entire game, so I'll describe each
 step within the function.*/
+/*
 void Hangman::scrambler() {
 //we need a while loop for this whole function so that when the word is completed it stops asking for guesses
 	for (int i=0; i<words.size(); i++) {  //This loop takes a word from the words vector and puts it into a string called letters,
@@ -176,6 +177,84 @@ void Hangman::scrambler() {
             }
             cout<<endl;  //adds an endline after the printout of the word
 		}
+
+		//totalTries += tries;      //sum of tries used per level
+
+	} //end of for loop body, for loop ends when last word in words text file is unscrambled
+}
+*/
+void Hangman::scrambler() {
+
+    resetHangman();
+
+	for (int i=0; i<words.size(); i++) {  //This loop takes a word from the words vector and puts it into a string called letters,
+		string letters;                   //thus each letter of the word occupies its own index of the string. Note that the rest of the code
+		letters = words[i];               //is contained in the body of this for loop, which I found to be necessary for the game to operate proper
+                                          //memory snapshot: word cat is placed in string {c, a, t}
+
+        vector<string> lettersVector;                  //Here I declare a vector of letters and fill the vector with the letters
+		for (int i=0; i<letters.size(); i++){   //of the word from the words vector above.
+			lettersVector.push_back(letters.substr(i, 1));    //memory snapshot: integer vector created {c, a, t}
+		}
+
+        vector<string> underscores;
+		for (int i=0; i<letters.size(); i++) {
+            underscores.push_back("_");
+            cout<<underscores[i];
+		}
+
+		cout << endl;
+		string guess;
+        vector<string> hangman;
+		int incorrectGuesses = 0; //Initializes local variables to record # of tries to guess letter
+
+		while (guess != words[i]) {                 //while loop runs while user's guess is not the word
+
+			cout<<"Guess: ";
+			cin >> guess;                           //allows user to input a string guess
+			//Following for loop for converting uppercase to lower case found at http://www.cplusplus.com/forum/beginner/613/.
+			for (int i=0; i<guess.length(); i++) {  //allows user to enter upper or lowercase letters
+				guess[i]=tolower(guess[i]);         //converts uppercase letters to lowercase letters
+			}
+            for (int i=0; i<letters.size(); i++){
+
+                if (guess == lettersVector[i]){
+                    cout<<"That's correct! Guess another letter or solve the word."<<endl;
+                    int index = i;
+                    underscores[index] = lettersVector[i];
+                    for(int i=0; i<underscores.size(); i++){
+                        cout<<underscores[i];
+                    }
+                    cout<<endl;
+                }
+                else
+                {
+                    //cout << guess << endl;
+                    cout << "WRONG! The following body part has been added to your hangman: " << endl;
+                    string bodypart = dequeueHangman();
+                    cout << bodypart << endl;
+                    hangman.push_back(bodypart);
+                    cout << "Your hangman has the following body parts: " << endl;
+                    for(int i=0; i < hangman.size(); i++)
+                    {
+                        cout << hangman[i] << endl;
+                    }
+                    if(queueisEmpty())
+                    {
+                        cout << "GAME OVER! You have been hung!" << endl;
+                        cout << endl;
+                        loadDirections();
+                    }
+                    break;
+                }
+
+           }
+           for(int i = 0; i < guess.length(); i++)
+           {
+
+           }
+		}
+
 
 		//totalTries += tries;      //sum of tries used per level
 

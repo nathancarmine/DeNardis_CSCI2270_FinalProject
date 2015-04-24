@@ -33,6 +33,7 @@ class Hangman {  //Declares a class called Hangman with private data members and
         bool queueisFull();
         std::string dequeueHangman();
         bool queueisEmpty();
+        void resetHangman();
 };
 
 
