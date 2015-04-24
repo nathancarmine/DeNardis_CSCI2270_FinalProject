@@ -24,8 +24,9 @@ Rebecca Robb (tabularasa7), Michelle De Nardis (mdenardis), and Rory Teehan (a4n
 Contributers:
 None so far.
 
-Open issues/buggs:
-None!
+Open issues/bugs:
+Scrambler function will not properly reset when user received game over/is dead.
+Incorrect answer condition called when correct guess is entered.
 
 
 
