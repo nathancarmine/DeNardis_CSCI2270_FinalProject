@@ -318,3 +318,19 @@ void Hangman::results() const {
 	else
 		cout << "Nice try!" << endl;
 }
+
+void Hangman::resetHangman()
+{
+    int i = 0;
+    while(!queueisEmpty())
+    {
+        bodyQueue[i] = " ";
+        queueHead++;
+        i++;
+    }
+
+    while(!queueisFull())
+    {
+       enqueueHangman();
+    }
+}
