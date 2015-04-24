@@ -184,7 +184,7 @@ void Hangman::scrambler() {
 }
 */
 void Hangman::scrambler() {
-
+//error now is that the loop checks every letter space against the guessed letter and counts prints wrong for each spot even if the guess was right
     resetHangman();
 
 	for (int i=0; i<words.size(); i++) {  //This loop takes a word from the words vector and puts it into a string called letters,
@@ -334,3 +334,58 @@ void Hangman::resetHangman()
        enqueueHangman();
     }
 }
+
+/*pseudo code for hangman figure
+7x7 2-D array
+Default Image:
+    cout << " ____  " << endl;
+    cout << " |  |  " << endl;
+    cout << " |     " << endl;
+    cout << " |     " << endl;
+    cout << " |     " << endl;
+    cout << " |     " << endl;
+    cout << "_|_____" << endl;
+
+Completed Image:
+    cout << " ____  " << endl;
+    cout << " |  |  " << endl;
+    cout << " |  O  " << endl;
+    cout << " | /|\\ " << endl;
+    cout << " | / \\ " << endl;
+    cout << " |     " << endl;
+    cout << "_|_____" << endl;
+
+Idea of implementation:
+    array[x][y]
+    for i = 0, i++{
+        for j = 0 j++{
+            cout array[i][j]
+        }
+    }
+
+Need to figure out how to add the appropriate symbols in the correct spots;
+I think it may be easiest to have predefined arrays that replace the existing arrays, for instance:
+    first wrong guess, replace the third array with one that has a head in it;
+    second wrong guess replace the fourth array with one that has a torso in it;
+    third wrong guess replace the fourth array with one that has a torso and left arm;
+    so-on.
+Benefit is that we don't have to tell the array where to add body parts;
+Downside is that we have to explicitly predefine each possible array combo;
+*/
+
+/*pseudo for scoring
+-counter for each time the game is started; +1 once the man is hanged but the program is still rerun
+    -this counter determines the size of the score-keeping array
+-second counter that is +1 for every word that is completely guessed
+    -this counter gets reset when the man is hanged
+    -before the counter reset, the value gets stored in the array in the position equivalent to the first counter's value
+-at the end of every game, the score is printed with some text congratulating the player
+-at the end of every game after the first, the previous highest score is printed as well
+    -if previous highest is greater than latest score, "slacker/motivational"-style comment printed out
+    -if previous highest is less than the latest score, congratulatory comment printed out
+SCORING COMPLETE
+*/
+
+
+
+
