@@ -23,16 +23,7 @@ int main() {
 	game.enterName();                                          //Calls enterName function, allows user to enter their name.
 	cout << endl;
 
-	cout << "Hello " << game.getName() << ", please choose a level to begin." << endl;           //Calls getName function which prints user's name to console.
-	cout << "Choose a difficulty level - ";
-	game.chooseLevel();                                                                          //Calls chooseLevel function which allows user to select level, level is assigned appropriate text files.
-	cout << endl;
-
-	game.loadWords();    //Calls loadWords function which loads words text file into vector.
-
-	cout << "Guess a letter for this Level " << game.getLevel() << " word." << endl;    //Calls getLevel function which prints level integer to console.
-
-	game.scrambler();  //Calls the scrambler function which essentially runs the entire game.
+    game.initializeGame();
 
 	cout << "Congratulations " << game.getName() << ", you've finished the game!" << endl;            //Again prints the user's name with message.
 	//cout << "You used a total of " << game.getTotalTries() << " tries. You're score is " << game.getTotalScore() << "." << endl;  //Calls getTotalTries which prints the total number of tries for the whole game
