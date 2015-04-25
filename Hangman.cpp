@@ -38,6 +38,20 @@ void Hangman::loadDirections() const {
 
 }
 
+void Hangman::initializeGame()
+{
+    cout << "Hello " << getName() << ", please choose a level to begin." << endl;           //Calls getName function which prints user's name to console.
+	cout << "Choose a difficulty level - ";
+	chooseLevel();                                                                          //Calls chooseLevel function which allows user to select level, level is assigned appropriate text files.
+	cout << endl;
+    loadWords();    //Calls loadWords function which loads words text file into vector.
+
+	cout << "Guess a letter for this Level " << getLevel() << " word." << endl;    //Calls getLevel function which prints level integer to console.
+
+	scrambler();  //Calls the scrambler function which essentially runs the entire game.
+
+}
+
 /*This function allows the user to enter their full name (first and last), the getline function captures the entire string as well
 as white space; the data member name is assigned the string and prints the user's name to the console when called by the getName function.*/
 void Hangman::enterName() {
@@ -185,8 +199,11 @@ void Hangman::scrambler() {
 */
 void Hangman::scrambler() {
 //error now is that the loop checks every letter space against the guessed letter and counts prints wrong for each spot even if the guess was right
+    bool dead = false;
+    bool winner = false;
     resetHangman();
-
+    while(!dead || !winner)
+    {
 	for (int i=0; i<words.size(); i++) {  //This loop takes a word from the words vector and puts it into a string called letters,
 		string letters;                   //thus each letter of the word occupies its own index of the string. Note that the rest of the code
 		letters = words[i];               //is contained in the body of this for loop, which I found to be necessary for the game to operate proper
@@ -217,17 +234,18 @@ void Hangman::scrambler() {
 				guess[i]=tolower(guess[i]);         //converts uppercase letters to lowercase letters
 			}
             for (int i=0; i<letters.size(); i++){
-
+                int index = 0;
                 if (guess == lettersVector[i]){
                     cout<<"That's correct! Guess another letter or solve the word."<<endl;
-                    int index = i;
+                    index = i;
                     underscores[index] = lettersVector[i];
                     for(int i=0; i<underscores.size(); i++){
                         cout<<underscores[i];
                     }
                     cout<<endl;
+                    //if()  condition if all letters guessed correctly, sets winner bool to true
                 }
-                else
+                else if(guess != lettersVector[i] && i == index)//ERROR: condition will only run properly for first letter in word correct, else condition will always be called, even if guess is correct
                 {
                     //cout << guess << endl;
                     cout << "WRONG! The following body part has been added to your hangman: " << endl;
@@ -242,15 +260,18 @@ void Hangman::scrambler() {
                     if(queueisEmpty())
                     {
                         cout << "GAME OVER! You have been hung!" << endl;
+                        cout << " ____  " << endl;
+                        cout << " |  |  " << endl;
+                        cout << " |  O  " << endl;
+                        cout << " | /|\\ " << endl;
+                        cout << " | / \\ " << endl;
+                        cout << " |     " << endl;
+                        cout << "_|_____" << endl;
                         cout << endl;
-                        loadDirections();
+                        dead = true;
                     }
                     break;
                 }
-
-           }
-           for(int i = 0; i < guess.length(); i++)
-           {
 
            }
 		}
@@ -259,6 +280,8 @@ void Hangman::scrambler() {
 		//totalTries += tries;      //sum of tries used per level
 
 	} //end of for loop body, for loop ends when last word in words text file is unscrambled
+    }
+	initializeGame();
 }
 
 void Hangman::enqueueHangman()
