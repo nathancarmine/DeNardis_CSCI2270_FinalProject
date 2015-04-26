@@ -11,7 +11,7 @@ vector<string> words; //These vectors are used in most of the functions below, h
 Hangman::Hangman()
 {
     totalTries = 0;
-    queueSize = 6;
+    queueSize = 7;
     bodyQueue = new string[queueSize];
     queueTail = 0;
     queueHead = 0;
@@ -35,6 +35,7 @@ void Hangman::loadDirections() const
 	cout << "\nGood Luck and try to avoid the noose!\n" << endl;
 }
 
+/*This function initializes the game levels and loads the words from the word files.*/
 void Hangman::initializeGame()
 {
     cout << "Hello " << getName() << ", please choose a level to begin." << endl;           //Calls getName function which prints user's name to console.
@@ -234,60 +235,68 @@ void Hangman::scrambler()
                 {
                     guess[i]=tolower(guess[i]);
                 }
-
+                bool correct = false;
                 for (int i=0; i<letters.size(); i++)  //takes the player's guess and checks it against every letter in the word
                 {
                     int index = 0;
-
                     if (guess == lettersVector[i])
                     {
                         cout<<"That's correct! ";
                         index = i;
                         underscores[index] = lettersVector[i];
+                        correct = true;
 
                         for(int i=0; i<underscores.size(); i++)
                         {
                             cout<<underscores[i];
                         }
                         cout<<endl;
-                        //if()  condition if all letters guessed correctly, sets winner bool to true
+                        if(i == letters.size()-1)  //condition if all letters guessed correctly, sets winner bool to true
+                        {
+                            cout << "You WIN!" << endl;
+                            cout << endl;
+                            winner = true;
+                            initializeGame();
+                        }
                     }
 
-                    else if(guess != lettersVector[i] && i == index)//ERROR: condition will only run properly for first letter in word correct, else condition will always be called, even if guess is correct
+                }
+                if(correct == false)//ERROR: condition will only run properly for first letter in word correct, else condition will always be called, even if guess is correct
+                {
+                    //cout << guess << endl;
+                    string bodypart = dequeueHangman();
+                    cout << "WRONG! The " << bodypart << " was added to your hangman." << endl;
+                    hangman.push_back(bodypart);
+                    cout << "Your hangman has the following body parts: " << endl;
+
+                    for(int i=0; i < hangman.size(); i++)
                     {
-                        //cout << guess << endl;
-                        string bodypart = dequeueHangman();
-                        cout << "WRONG! The " << bodypart << " was added to your hangman." << endl;
-                        hangman.push_back(bodypart);
-                        cout << "Your hangman has the following body parts: " << endl;
+                        cout << hangman[i] << endl;
+                    }
 
-                        for(int i=0; i < hangman.size(); i++)
-                        {
-                            cout << hangman[i] << endl;
-                        }
-
-                        if(queueisEmpty())
-                        {
-                            cout << "GAME OVER! You have been hung!" << endl;
-                            cout << " ____  " << endl;
-                            cout << " |  |  " << endl;
-                            cout << " |  O  " << endl;
-                            cout << " | /|\\ " << endl;
-                            cout << " | / \\ " << endl;
-                            cout << " |     " << endl;
-                            cout << "_|_____" << endl;
-                            cout << endl;
-                            dead = true;
-                        }
-                        break;
+                    if(queueisEmpty())
+                    {
+                        cout << "GAME OVER! You have been hung!" << endl;
+                        cout << " ____  " << endl;
+                        cout << " |  |  " << endl;
+                        cout << " |  O  " << endl;
+                        cout << " | /|\\ " << endl;
+                        cout << " | / \\ " << endl;
+                        cout << " |     " << endl;
+                        cout << "_|_____" << endl;
+                        cout << endl;
+                        dead = true;
+                        initializeGame();
                     }
                 }
             }
         } //end of for loop body, for loop ends when last word in words text file is unscrambled
     }
-	initializeGame();
+
 }
 
+/*Function places the body parts of the hangman in a queue to be dequeued if
+an incorrect guess is made.*/
 void Hangman::enqueueHangman()
 {
     string body;
@@ -302,6 +311,7 @@ void Hangman::enqueueHangman()
     }
 }
 
+/*Dequeues strings containing body parts of hangman*/
 string Hangman::dequeueHangman()
 {
     string dequeueText;
@@ -318,6 +328,7 @@ string Hangman::dequeueHangman()
     return dequeueText;
 }
 
+/*Checks if queue is full*/
 bool Hangman::queueisFull()
 {
     if(queueTail == queueSize-1)
@@ -326,6 +337,7 @@ bool Hangman::queueisFull()
         return false;
 }
 
+/*Checks if queue is empty*/
 bool Hangman::queueisEmpty()
 {
     if(queueHead == queueTail)
@@ -363,15 +375,6 @@ void Hangman::resetHangman()
     }
 }
 
-/*my thoughts on the fix for the letter check:
-I think the check for correct letters should be it's own loop (or function) with a variable saving whether there were right letters or not;
-Then the incorrect guesses should be it's own separate loop (or function) as well. This we we have the function check for whether guessed
-letter exists in the word; if it does then no need to run the second one, if it doesn't, then run the incorrect guess loop/function. This
-way we can count on the checker going through every single letter to see if it's there before deciding whether it's a correct guess or not.
-I also suggest that we only put words in the word text bank that doesn't have repeat letters...if it's possible. It'll make it uniquely hard
-for the player to guess, but it will also make it easier for us so we don't have to worry about the player getting more than one letter
-correct in a single guess...makes for a simpler function.
-*/
 
 /*pseudo code for hangman figure
 7x7 2-D array
