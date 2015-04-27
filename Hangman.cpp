@@ -3,6 +3,7 @@
 #include <cstdlib>    //Necessary preprocessor directives for following components
 #include <fstream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -114,89 +115,9 @@ void Hangman::loadWords()
 	input.close();
 }
 
-
-/*This function is the "meat" of the program. I couldn't figure out how to simplify it without messing up the entire game, so I'll describe each
-step within the function.*/
-/*
-void Hangman::scrambler() {
-//we need a while loop for this whole function so that when the word is completed it stops asking for guesses
-	for (int i=0; i<words.size(); i++) {  //This loop takes a word from the words vector and puts it into a string called letters,
-		string letters;                   //thus each letter of the word occupies its own index of the string. Note that the rest of the code
-		letters = words[i];               //is contained in the body of this for loop, which I found to be necessary for the game to operate proper
-                                          //memory snapshot: word cat is placed in string {c, a, t}
-
-        vector<string> lettersVector;                  //Here I declare a vector of letters and fill the vector with the letters
-		for (int i=0; i<letters.size(); i++){   //of the word from the words vector above.
-			lettersVector.push_back(letters.substr(i, 1));    //memory snapshot: integer vector created {c, a, t}
-		}
-
-        vector<string> underscores;
-		for (int i=0; i<letters.size(); i++) {
-            underscores.push_back("_");
-            cout<<underscores[i];
-		}
-
-		cout << endl;
-		string guess;
-        vector<string> hangman;
-		int incorrectGuesses = 0; //Initializes local variables to record # of tries to guess letter
-
-		while (guess != words[i]) {                 //while loop runs while user's guess is not the word
-
-			cout<<"Guess a letter: ";
-			cin >> guess;                           //allows user to input a string guess
-			//Following for loop for converting uppercase to lower case found at http://www.cplusplus.com/forum/beginner/613/.
-			for (int i=0; i<guess.length(); i++) {  //allows user to enter upper or lowercase letters
-				guess[i]=tolower(guess[i]);         //converts uppercase letters to lowercase letters
-			}
-
-			//when the for loop is here it would check the letter for as many letters as in the word
-			//and output "WRONG" x number of times
-			int checking = 0;
-			for (int i = 0; i < letters.size(); i++)
-            {
-                if (guess == lettersVector[i])
-                {
-                    checking++;
-                    int index = i;
-                    underscores[index] = lettersVector[i];
-                }
-            }
-            if(checking > 0)
-            {
-                cout<<"You guessed a correct letter, keep going!"<<endl;
-                int index = i;
-                underscores[index] = lettersVector[i];
-            }
-            else if(checking <= 0)
-            {
-                cout <<"WRONG! That letter is not part of the word." << endl;
-                while(!queueisEmpty())
-                {
-                    string bodypart = dequeueHangman();
-                    for(int i=0; i <hangman.size(); i++)
-                    {
-                        hangman.push_back(bodypart);
-                        cout << hangman[i] << endl;
-                    }
-                }
-            }
-
-            //this should be printed at the end of every guess no matter whether the guess was right or not
-            for(int i=0; i<underscores.size(); i++)
-            {
-                cout<<underscores[i];
-            }
-            cout<<endl;  //adds an endline after the printout of the word
-		}
-
-		//totalTries += tries;      //sum of tries used per level
-
-	} //end of for loop body, for loop ends when last word in words text file is unscrambled
-}
-*/
 void Hangman::scrambler()
 {
+    int score = 0;
     bool dead = false;  //boolean to see if the player guessed too many incorrect guessed
     bool winner = false;  //boolean to see if the player has guessed the word correctly or not
     resetHangman();
@@ -245,6 +166,7 @@ void Hangman::scrambler()
                         index = i;
                         underscores[index] = lettersVector[i];
                         correct = true;
+                        score += 10;
 
                         for(int i=0; i<underscores.size(); i++)
                         {
@@ -284,7 +206,8 @@ void Hangman::scrambler()
                         cout << " | / \\ " << endl;
                         cout << " |     " << endl;
                         cout << "_|_____" << endl;
-                        cout << endl;
+                        cout << "Your final score is: " << score << endl;
+                        cout << "Your highest score is: " << score_keeper(score) << endl;
                         dead = true;
                         initializeGame();
                     }
@@ -375,58 +298,17 @@ void Hangman::resetHangman()
     }
 }
 
-
-/*pseudo code for hangman figure
-7x7 2-D array
-Default Image:
-    cout << " ____  " << endl;
-    cout << " |  |  " << endl;
-    cout << " |     " << endl;
-    cout << " |     " << endl;
-    cout << " |     " << endl;
-    cout << " |     " << endl;
-    cout << "_|_____" << endl;
-
-Completed Image:
-    cout << " ____  " << endl;
-    cout << " |  |  " << endl;
-    cout << " |  O  " << endl;
-    cout << " | /|\\ " << endl;
-    cout << " | / \\ " << endl;
-    cout << " |     " << endl;
-    cout << "_|_____" << endl;
-
-Idea of implementation:
-    array[x][y]
-    for i = 0, i++{
-        for j = 0 j++{
-            cout array[i][j]
-        }
-    }
-
-Need to figure out how to add the appropriate symbols in the correct spots;
-I think it may be easiest to have predefined arrays that replace the existing arrays, for instance:
-    first wrong guess, replace the third array with one that has a head in it;
-    second wrong guess replace the fourth array with one that has a torso in it;
-    third wrong guess replace the fourth array with one that has a torso and left arm;
-    so-on.
-Benefit is that we don't have to tell the array where to add body parts;
-Downside is that we have to explicitly predefine each possible array combo;
-*/
-
-/*pseudo for scoring
--counter for each time the game is started; +1 once the man is hanged but the program is still rerun
-    -this counter determines the size of the score-keeping array
--second counter that is +1 for every word that is completely guessed
-    -this counter gets reset when the man is hanged
-    -before the counter reset, the value gets stored in the array in the position equivalent to the first counter's value
--at the end of every game, the score is printed with some text congratulating the player
--at the end of every game after the first, the previous highest score is printed as well
-    -if previous highest is greater than latest score, "slacker/motivational"-style comment printed out
-    -if previous highest is less than the latest score, congratulatory comment printed out
-SCORING COMPLETE
-*/
-
-
-
-
+//the problem with displaying the highest is that it's not searching for the highest. I almost had an iteration function that worked,
+//but I learned about max_element and that should be the better solution. Do you know how max_element works?
+int Hangman::score_keeper(int score)
+{
+    //tries is the index for the all_scores array to store the past and last scores
+    //score is the last score that needs to be added to the array
+    int highest = 0;
+    if(all_scores.begin() != all_scores.end())
+        highest = *max_element(all_scores.begin(), all_scores.end());
+    else
+        highest = score;
+    //find the highest score
+    return highest;
+}
