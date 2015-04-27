@@ -39,6 +39,7 @@ void Hangman::loadDirections() const
 /*This function initializes the game levels and loads the words from the word files.*/
 void Hangman::initializeGame()
 {
+    Hangman::tries += 1;
     cout << "Hello " << getName() << ", please choose a level to begin." << endl;           //Calls getName function which prints user's name to console.
 	cout << "Choose a difficulty level - ";
 	chooseLevel();                                                                          //Calls chooseLevel function which allows user to select level, level is assigned appropriate text files.
@@ -123,10 +124,10 @@ void Hangman::scrambler()
     resetHangman();
     while(!dead || !winner)  //while the player hasn't lost but also hasn't won
     {
-        for (int i=0; i<words.size(); i++)  //This loop takes a word from the words vector and puts it into a string called letters,
-        {
+        //for (i; i<words.size(); i++)  //This loop takes a word from the words vector and puts it into a string called letters,
+        //{
             string letters;                   //each letter of the word occupies its own index of the string.
-            letters = words[i];               //memory snapshot: word cat is placed in string {c, a, t}
+            letters = words[tries];               //memory snapshot: word cat is placed in string {c, a, t}
 
             vector<string> lettersVector;  //declare a vector of letters and fill the vector with the letters of the word from the words vector
             for (int i=0; i<letters.size(); i++)
@@ -146,7 +147,7 @@ void Hangman::scrambler()
             vector<string> hangman;
             int incorrectGuesses = 0;  //Initializes local variables to record # of tries to guess letter
 
-            while (guess != words[i])  //while loop runs while user's guess is not the completed word
+            while (guess != words[tries])  //while loop runs while user's guess is not the completed word
             {
                 cout<<"Guess: ";
                 cin >> guess;
@@ -213,7 +214,7 @@ void Hangman::scrambler()
                     }
                 }
             }
-        } //end of for loop body, for loop ends when last word in words text file is unscrambled
+        //} //end of for loop body, for loop ends when last word in words text file is unscrambled
     }
 
 }
