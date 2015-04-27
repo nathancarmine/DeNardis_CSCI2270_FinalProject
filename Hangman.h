@@ -2,6 +2,7 @@
 #define HANGMAN_H
 #pragma once              //Necessary preprocessor directives for following components
 #include <string>
+#include <vector>
 
 
 class Hangman {  //Declares a class called Hangman with private data members and public member functions
@@ -35,6 +36,10 @@ class Hangman {  //Declares a class called Hangman with private data members and
         bool queueisEmpty();
         void resetHangman();
         void initializeGame();
+        int score;
+        std::vector<int> all_scores;
+        int score_keeper(int);
+        int tries;
 };
 
 
