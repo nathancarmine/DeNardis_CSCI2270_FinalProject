@@ -11,7 +11,7 @@ class Hangman {  //Declares a class called Hangman with private data members and
         std::string name;
         std::string wordsFile;
         int level;
-        int totalTries;
+        int score;
         std::string *bodyQueue;
         int queueHead;
         int queueTail;
@@ -23,12 +23,11 @@ class Hangman {  //Declares a class called Hangman with private data members and
         std::string getName() const {return name;}           //Accessor methods or get functions
         std::string getWordsFile() const {return wordsFile;}
         int getLevel() const {return level;}
-        int getTotalTries() const {return totalTries;}
         void loadDirections() const;                     //Function prototypes for game components
         void enterName();
         void chooseLevel();
         void loadWords();
-        void scrambler();
+        void hangmanGame();
         void results() const;
         void enqueueHangman();
         bool queueisFull();
@@ -36,11 +35,7 @@ class Hangman {  //Declares a class called Hangman with private data members and
         bool queueisEmpty();
         void resetHangman();
         void initializeGame();
-        int score;
-        std::vector<int> all_scores;
-        int score_keeper(int);
-        int tries;
-};
 
+};
 
 #endif // HANGMAN_H
