@@ -7,23 +7,35 @@
 
 using namespace std;
 
-vector<string> words; //These vectors are used in most of the functions below, hence global scope.
+vector<string> words; //This vector is used in most of the functions below, hence global scope.
 
-Hangman::Hangman()
+Hangman::Hangman()  //constructor to initialize queue
 {
-    totalTries = 0;
     queueSize = 7;
-    bodyQueue = new string[queueSize];
+    bodyQueue = new string[queueSize];  //queue is used for the body parts of the hangman
     queueTail = 0;
     queueHead = 0;
 }
 
-Hangman::~Hangman()
+Hangman::~Hangman()  //destructor deletes queue
 {
     delete []bodyQueue;
 }
 
-/*This function prints the directions of the game to the console, keeps the main.cpp neat to define them here.*/
+/*
+Function prototype:
+void Hangman::loadDirections() const
+
+Function description:
+/*This function prints the directions of the game to the console, keeps the main.cpp neat to define them here.
+
+Example:
+Hangman game;
+game.loadDirections
+
+Pre-conditions: none
+Post-conditions: none
+*/
 void Hangman::loadDirections() const
 {
 	cout << "\nDirections:" << endl;
@@ -32,13 +44,30 @@ void Hangman::loadDirections() const
 	cout << "  -Once I've chosen a word, you can guess a letter" << endl;
 	cout << "  -For each incorrect guess I will add a body part to the hanged man" << endl;
 	cout << "  -I'll keep track of how many words you guess correctly" << endl;
-	cout << "  -The object is to see how many words you guess before I\n   complete my drawing (6 incorrect guesses)" << endl;
+	cout << "  -The object is to see how many words you guess before I complete\n   my drawing (6 incorrect guesses)" << endl;
+	cout << "  -You will earn 10 points for each correct guess and lose 10 points for each\n   incorrect guess" << endl;
 	cout << "\nGood Luck and try to avoid the noose!\n" << endl;
 }
 
-/*This function initializes the game levels and loads the words from the word files.*/
+
+/*
+Function prototype:
+void Hangman::initializeGame()
+
+Function description:
+This function initializes the game levels and loads the words from the word files.
+
+Example:
+Hangman game;
+game.initializeGame();
+
+Pre-conditions: none
+Post-conditions: words vector is filled with words from particular level, new game is started with function call to hangmanGame
+*/
 void Hangman::initializeGame()
 {
+    score = 0;
+    words.clear();  //clears the words vector so new words can be loaded with each new game
     cout << "Hello " << getName() << ", please choose a level to begin." << endl;           //Calls getName function which prints user's name to console.
 	cout << "Choose a difficulty level - ";
 	chooseLevel();                                                                          //Calls chooseLevel function which allows user to select level, level is assigned appropriate text files.
@@ -47,7 +76,7 @@ void Hangman::initializeGame()
 
 	cout << "Guess a letter for this Level " << getLevel() << " word." << endl;    //Calls getLevel function which prints level integer to console.
 
-	scrambler();  //Calls the scrambler function which essentially runs the entire game.
+	hangmanGame();  //Calls the hangmanGame function which essentially runs the entire game.
 
 }
 
@@ -60,8 +89,21 @@ void Hangman::enterName()
 	name = n;
 }
 
-/*This function allows the user to choose a difficulty level from 1 to 3, each level is associated with a words text file (containing 10 words).
-The data member level is assigned the int lev and prints the level number to the console when called by the getLevel function.*/
+/*
+Function prototype:
+void Hangman::chooseLevel()
+
+Function description:
+This function allows the user to choose a difficulty level from 1 to 3, each level is associated with a words text file (containing 10 words).
+The data member level is assigned the int lev and prints the level number to the console when called by the getLevel function.
+
+Example:
+Hangman game;
+game.chooseLevel();
+
+Pre-conditions: called in initializeGame function
+Post-conditions: picks appropriate text file based on level chosen, must be called before loadWords function (and it is in the initializeGame function).
+*/
 void Hangman::chooseLevel()
 {
 	int lev;
@@ -95,7 +137,20 @@ void Hangman::chooseLevel()
 	}
 }
 
-/*This function opens the words text files, checks for errors, loads the words into a vector called words, and then closes the words text file.*/
+/*
+Function prototype:
+void Hangman::loadWords()
+
+Function description:
+This function opens the words text files, checks for errors, loads the words into a vector called words, and then closes the words text file.
+
+Example:
+Hangman game;
+game.loadWords();
+
+Pre-conditions: called in initializeGame function, must be called after chooseLevel
+Post-conditions: words are loaded into words vector based on level chosen, words remain in vector until game ends and is reinitialized
+*/
 void Hangman::loadWords()
 {
 	ifstream input;
@@ -115,67 +170,95 @@ void Hangman::loadWords()
 	input.close();
 }
 
-void Hangman::scrambler()
+
+/*
+Function prototype:
+void Hangman::hangmanGame()
+
+Function description:
+This function is the entire game, each line is described throughout the function
+
+Example:
+Hangman game;
+game.hangmanGame();
+
+Pre-conditions: called in initializeGame function, must be called after chooseLevel and loadWords functions
+Post-conditions: runs entire game and calls other functions, calls initializeGame when game is over
+*/
+void Hangman::hangmanGame()
 {
-    int score = 0;
-    bool dead = false;  //boolean to see if the player guessed too many incorrect guessed
+
+    bool dead = false;  //boolean to see if the player guessed too many incorrect guesses
     bool winner = false;  //boolean to see if the player has guessed the word correctly or not
     resetHangman();
     while(!dead || !winner)  //while the player hasn't lost but also hasn't won
     {
-        for (int i=0; i<words.size(); i++)  //This loop takes a word from the words vector and puts it into a string called letters,
-        {
-            string letters;                   //each letter of the word occupies its own index of the string.
-            letters = words[i];               //memory snapshot: word cat is placed in string {c, a, t}
+        //for (int i=0; i<words.size(); i++){  //This loop takes a word from the words vector and puts it into a string called letters,
+            int randomInt;
+            randomInt = rand() % 10 + 1;   //generates a random integer between 1 and 10
+            string letters;                   //declares a string to store randomly chosen word from text file
+            letters = words[randomInt];         //each letter of the word occupies its own index of the string, memory snapshot: word cat is placed in string {c, a, t}
 
             vector<string> lettersVector;  //declare a vector of letters and fill the vector with the letters of the word from the words vector
+
             for (int i=0; i<letters.size(); i++)
             {
-                lettersVector.push_back(letters.substr(i, 1));    //memory snapshot: integer vector created {c, a, t}
+                lettersVector.push_back(letters.substr(i, 1));    //memory snapshot: string vector created {c, a, t}
             }
 
             vector<string> underscores;  //vector for the blank spaces representing the incomplete part(s) of the word
             for (int i=0; i<letters.size(); i++)
             {
                 underscores.push_back("_");
-                cout<<underscores[i];
+                cout<<underscores[i]<<" ";
             }
-
             cout << endl;
-            string guess;  //this is the cin letter of the player's guess; gets overwritten with every new guess
-            vector<string> hangman;
-            int incorrectGuesses = 0;  //Initializes local variables to record # of tries to guess letter
+            cout << endl;
 
-            while (guess != words[i])  //while loop runs while user's guess is not the completed word
+            string guess;  //this is the cin letter of the player's guess; gets overwritten with every new guess
+            vector<string> correctGuesses;  //vector to hold correct guesses
+            vector<string> hangman;  //vector to hold body parts added to tree
+
+            while (guess != words[randomInt])  //while loop runs while user's guess is not the completed word
             {
                 cout<<"Guess: ";
                 cin >> guess;
+                cout<<endl;
                 cin.clear();
 
                 for (int i=0; i<guess.length(); i++)  //converts every input to lowercase
                 {
                     guess[i]=tolower(guess[i]);
                 }
-                bool correct = false;
+
+                bool correct = false;  //boolean to check if letter is correct or incorrect
+
                 for (int i=0; i<letters.size(); i++)  //takes the player's guess and checks it against every letter in the word
                 {
                     int index = 0;
-                    if (guess == lettersVector[i])
+                    if (guess == lettersVector[i])   //if guess is a letter in the lettersVector
                     {
                         cout<<"That's correct! ";
-                        index = i;
-                        underscores[index] = lettersVector[i];
-                        correct = true;
-                        score += 10;
+                        index = i;                         //index is recorded
+                        underscores[index] = lettersVector[i];  //and in the underscore vector the corresponding underscore is replaced with the letter
+                        correctGuesses.push_back(guess);   //the letter is added to the correctGuesses vector
+                        correct = true;                //correct is set to true
+                        score += 10;       //score recorded
 
-                        for(int i=0; i<underscores.size(); i++)
+                        for(int i=0; i<underscores.size(); i++)  //prints underscores with letters guessed correctly
                         {
-                            cout<<underscores[i];
+                            cout<<underscores[i]<<" ";
                         }
                         cout<<endl;
-                        if(i == letters.size()-1)  //condition if all letters guessed correctly, sets winner bool to true
+                        cout<<endl;
+
+                        if(correctGuesses.size() == letters.size())  //condition if all letters guessed correctly, sets winner bool to true
                         {
-                            cout << "You WIN!" << endl;
+                            cout << "You WIN! Your final score is: " << score << endl;
+                            if (score <= 0)
+                                cout << "Keep trying, you can get a better score!" << endl;
+                            else if (score > 0)
+                                cout << "You're a Hangman master!" << endl;
                             cout << endl;
                             winner = true;
                             initializeGame();
@@ -183,20 +266,24 @@ void Hangman::scrambler()
                     }
 
                 }
-                if(correct == false)//ERROR: condition will only run properly for first letter in word correct, else condition will always be called, even if guess is correct
+                if(correct == false)  //if incorrect letter is guessed
                 {
-                    //cout << guess << endl;
-                    string bodypart = dequeueHangman();
+
+                    string bodypart = dequeueHangman();  //then body part is dequeued and printed to console
                     cout << "WRONG! The " << bodypart << " was added to your hangman." << endl;
-                    hangman.push_back(bodypart);
-                    cout << "Your hangman has the following body parts: " << endl;
+                    cout << endl;
+                    hangman.push_back(bodypart);  //body part added to hangman vector to keep track of body parts on gallows
+                    cout << "Your hangman has the following body parts: ";
 
-                    for(int i=0; i < hangman.size(); i++)
+                    for(int i=0; i < hangman.size(); i++)  //prints body parts in hangman vector
                     {
-                        cout << hangman[i] << endl;
+                        cout << hangman[i] << ", ";
                     }
+                    cout << endl;
+                    cout << endl;
+                    score -= 10;
 
-                    if(queueisEmpty())
+                    if(queueisEmpty())  //if the body parts queue is empty then the user has used up their 6 guesses and is hung
                     {
                         cout << "GAME OVER! You have been hung!" << endl;
                         cout << " ____  " << endl;
@@ -206,26 +293,43 @@ void Hangman::scrambler()
                         cout << " | / \\ " << endl;
                         cout << " |     " << endl;
                         cout << "_|_____" << endl;
+                        cout << endl;
                         cout << "Your final score is: " << score << endl;
-                        cout << "Your highest score is: " << score_keeper(score) << endl;
+                        if (score <= 0)
+                            cout << "Keep trying, you can get a better score!" << endl;
+                        else if (score > 0)
+                            cout << "You're a Hangman master!" << endl;
+                        cout << endl;
                         dead = true;
                         initializeGame();
                     }
                 }
             }
-        } //end of for loop body, for loop ends when last word in words text file is unscrambled
+        //} //end of for loop body, for loop ends when last word in words text file is unscrambled
     }
 
 }
 
-/*Function places the body parts of the hangman in a queue to be dequeued if
-an incorrect guess is made.*/
+/*
+Function prototype:
+void Hangman::enqueueHangman()
+
+Function description:
+Function places the body parts of the hangman in a queue to be dequeued if an incorrect guess is made.
+
+Example:
+Hangman game;
+game.enqueueHangman();
+
+Pre-conditions: called in resetHangman function
+Post-conditions: loads body parts from body text file into queue
+*/
 void Hangman::enqueueHangman()
 {
     string body;
     ifstream bodyFile("body.txt");
 
-    int i = 0;
+    //int i = 0;
     while(!queueisFull())
     {
         getline(bodyFile, body, ',');
@@ -234,7 +338,20 @@ void Hangman::enqueueHangman()
     }
 }
 
-/*Dequeues strings containing body parts of hangman*/
+/*
+Function prototype:
+void Hangman::dequeueHangman()
+
+Function description:
+Dequeues strings containing body parts of hangman.
+
+Example:
+Hangman game;
+game.dequeueHangman();
+
+Pre-conditions: called in hangmanGame function when user guesses incorrect letter
+Post-conditions: body part removed from queue
+*/
 string Hangman::dequeueHangman()
 {
     string dequeueText;
@@ -251,7 +368,20 @@ string Hangman::dequeueHangman()
     return dequeueText;
 }
 
-/*Checks if queue is full*/
+/*
+Function prototype:
+void Hangman::queueisFull()
+
+Function description:
+Checks if queue is full.
+
+Example:
+Hangman game;
+game.queueisFull();
+
+Pre-conditions: called in enqueueHangman function
+Post-conditions: none
+*/
 bool Hangman::queueisFull()
 {
     if(queueTail == queueSize-1)
@@ -260,7 +390,20 @@ bool Hangman::queueisFull()
         return false;
 }
 
-/*Checks if queue is empty*/
+/*
+Function prototype:
+void Hangman::queueisEmpty()
+
+Function description:
+Checks if queue is empty
+
+Example:
+Hangman game;
+game.queueisEmpty();
+
+Pre-conditions: called in hangmanGame function, if queue is empty user has lost the game
+Post-conditions: none
+*/
 bool Hangman::queueisEmpty()
 {
     if(queueHead == queueTail)
@@ -269,46 +412,29 @@ bool Hangman::queueisEmpty()
         return false;
 }
 
-/*Function to print results based on final score.*/
-void Hangman::results() const
-{
-	if (totalTries == 0 || totalTries < 60)
-		cout << "Keep trying, you can get a better score!" << endl;
-	else if (totalTries == 100)
-		cout << "You're the master at Hangman!" << endl;
-	else if (totalTries < 100 && totalTries >= 80)
-		cout << "Great job!" << endl;
-	else
-		cout << "Nice try!" << endl;
-}
+/*Reference for code: http://www.cplusplus.com/forum/general/91788/*/
+/*
+Function prototype:
+void Hangman:resetHangman()
 
+Function description:
+Resets the queue for a new game if the user correctly guesses the word
+
+Example:
+Hangman game;
+game.resetHangman();
+
+Pre-conditions: called in hangmanGame function
+Post-conditions: refreshes the queue
+*/
 void Hangman::resetHangman()
 {
-    int i = 0;
-    while(!queueisEmpty())
-    {
-        bodyQueue[i] = " ";
-        queueHead++;
-        i++;
-    }
+    bodyQueue[0] = '\0';
+    queueHead = 0;
+    queueTail = 0;
 
     while(!queueisFull())
     {
        enqueueHangman();
     }
-}
-
-//the problem with displaying the highest is that it's not searching for the highest. I almost had an iteration function that worked,
-//but I learned about max_element and that should be the better solution. Do you know how max_element works?
-int Hangman::score_keeper(int score)
-{
-    //tries is the index for the all_scores array to store the past and last scores
-    //score is the last score that needs to be added to the array
-    int highest = 0;
-    if(all_scores.begin() != all_scores.end())
-        highest = *max_element(all_scores.begin(), all_scores.end());
-    else
-        highest = score;
-    //find the highest score
-    return highest;
 }
