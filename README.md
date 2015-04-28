@@ -9,7 +9,7 @@ The user will earn 10 points for each correct guess and lose 10 points for each 
 
 How to Run:
 Clone the program to your computer using the appropriate clone URL. Once all program files are properly stored on your computer including the text files, run the program in the terminal by typing the following command: 
-g++ -std=c++11 main.cpp Hangman.cpp
+g++ -std=c++11 main.cpp Hangman.cpp   then type   ./a.out  to run the program.
 Or
 Build a new project in the VM and add a Hangman class.  Copy and past the contents of the main.cpp, Hangman.cpp, and Hangman.h files into your corresponding files.  Copy the 4 text files into your project file next to the main.cpp.  Run the program using the VM.
 
