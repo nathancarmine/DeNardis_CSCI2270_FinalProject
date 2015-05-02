@@ -158,11 +158,11 @@ void Hangman::hangmanGame()
             string letters;                   //declares a string to store randomly chosen word from text file
             letters = words[randomInt];         //each letter of the word occupies its own index of the string, memory snapshot: word cat is placed in string {c, a, t}
 
-            vector<string> lettersVector;  //declare a vector of letters and fill the vector with the letters of the word from the words vector
+            vector<char> lettersVector;  //declare a vector of letters and fill the vector with the letters of the word from the words vector
 
             for (int i=0; i<letters.size(); i++)
             {
-                lettersVector.push_back(letters.substr(i, 1));    //memory snapshot: string vector created {c, a, t}
+                lettersVector.push_back(letters[i]);    //memory snapshot: string vector created {c, a, t}
             }
 
             vector<string> underscores;  //vector for the blank spaces representing the incomplete part(s) of the word
@@ -175,94 +175,119 @@ void Hangman::hangmanGame()
             cout << endl;
 
             string guess;  //this is the cin letter of the player's guess; gets overwritten with every new guess
-            vector<string> correctGuesses;  //vector to hold correct guesses
+            vector<char> correctGuesses;  //vector to hold correct guesses
+			vector<char> allGuesses;
             vector<string> hangman;  //vector to hold body parts added to tree
+			bool endgame = false;
 
-            while (guess != words[randomInt])  //while loop runs while user's guess is not the completed word
+            while (!endgame)  //while loop runs while user's guess is not the completed word
             {
                 cout<<"Guess: ";
 				getline(cin, guess);
-                
-                for (int i=0; i<guess.length(); i++)  //converts every input to lowercase
-                {
-                    guess[i]=tolower(guess[i]);
-                }
+				char guessChar = guess[0];
+				guessChar=tolower(guessChar);
 
-                bool correct = false;  //boolean to check if letter is correct or incorrect
+				if(isalpha(guessChar) && (find(allGuesses.begin(), allGuesses.end(), guessChar) == allGuesses.end()))
+				{	
+					allGuesses.push_back(guessChar);
+					bool correct = false;  //boolean to check if letter is correct or incorrect
 
-                for (int i=0; i<letters.size(); i++)  //takes the player's guess and checks it against every letter in the word
-                {
-                    int index = 0;
-                    if (guess == lettersVector[i])   //if guess is a letter in the lettersVector
-                    {
-                        cout<<"That's correct! ";
-                        index = i;                         //index is recorded
-                        underscores[index] = lettersVector[i];  //and in the underscore vector the corresponding underscore is replaced with the letter
-                        correctGuesses.push_back(guess);   //the letter is added to the correctGuesses vector
-                        correct = true;                //correct is set to true
-                        score += 10;       //score recorded
+					for (int i=0; i<letters.size(); i++)  //takes the player's guess and checks it against every letter in the word
+					{
+						int index = 0;
+						if (guessChar == lettersVector[i])   //if guess is a letter in the lettersVector
+						{
+							cout<<"That's correct! ";
+							index = i;                         //index is recorded
+							underscores[index] = lettersVector[i];  //and in the underscore vector the corresponding underscore is replaced with the letter
+							correctGuesses.push_back(guessChar);   //the letter is added to the correctGuesses vector
+							correct = true;                //correct is set to true
+							score += 10;       //score recorded
 
-                        for(int i=0; i<underscores.size(); i++)  //prints underscores with letters guessed correctly
-                        {
-                            cout<<underscores[i]<<" ";
-                        }
-                        cout<<endl;
-                        cout<<endl;
+							for(int i=0; i<underscores.size(); i++)  //prints underscores with letters guessed correctly
+							{
+								cout<<underscores[i]<<" ";
+							}
+							cout<<endl;
+							cout<<endl;
 
-                        if(correctGuesses.size() == letters.size())  //condition if all letters guessed correctly, sets winner bool to true
-                        {
-                            cout << "You WIN! Your final score is: " << score << endl;
-                            if (score <= 0)
-                                cout << "Keep trying, you can get a better score!" << endl;
-                            else if (score > 0)
-                                cout << "You're a Hangman master!" << endl;
-                            cout << endl;
-                            winner = true;
-                            initializeGame();
-                        }
-                    }
+							if(correctGuesses.size() == letters.size())  //condition if all letters guessed correctly, sets winner bool to true
+							{
+								cout << "You WIN! Your final score is: " << score << endl;
+								if (score <= 0)
+									cout << "Keep trying, you can get a better score!" << endl;
+								else if (score > 0)
+									cout << "You're a Hangman master!" << endl;
+								cout << endl;
+								winner = true;
+								endgame = true;
+								initializeGame();
+							}
+						}
+					}
+					if(correct == false)  //if incorrect letter is guessed
+					{
 
-                }
-                if(correct == false)  //if incorrect letter is guessed
-                {
+						string bodypart = dequeueHangman();  //then body part is dequeued and printed to console
+						cout << "WRONG! The " << bodypart << " was added to your hangman." << endl;
+						cout << endl;
+						hangman.push_back(bodypart);  //body part added to hangman vector to keep track of body parts on gallows
+						cout << "Your hangman has the following body parts: ";
 
-                    string bodypart = dequeueHangman();  //then body part is dequeued and printed to console
-                    cout << "WRONG! The " << bodypart << " was added to your hangman." << endl;
-                    cout << endl;
-                    hangman.push_back(bodypart);  //body part added to hangman vector to keep track of body parts on gallows
-                    cout << "Your hangman has the following body parts: ";
+						for(int i=0; i < hangman.size(); i++)  //prints body parts in hangman vector
+						{
+							if(i>0)
+								cout<<", ";
+							cout << hangman[i];
+						}
+						cout << endl;
 
-                    for(int i=0; i < hangman.size(); i++)  //prints body parts in hangman vector
-                    {
+						cout<<"Letters guessed: ";
+						for(int i=0; i < allGuesses.size(); i++)  //prints body parts in hangman vector
+						{
+							if(i>0)
+								cout<<", ";
+							cout << allGuesses[i];
+						}
+						cout << endl;
+						cout << endl;
+						score -= 10;
+
+						if(queueisEmpty())  //if the body parts queue is empty then the user has used up their 6 guesses and is hung
+						{
+							cout << "GAME OVER! You have been hung!" << endl;
+							cout << " ____  " << endl;
+							cout << " |  |  " << endl;
+							cout << " |  O  " << endl;
+							cout << " | /|\\ " << endl;
+							cout << " | / \\ " << endl;
+							cout << " |     " << endl;
+							cout << "_|_____" << endl;
+							cout << endl;
+							cout << "Your final score is: " << score << endl;
+							if (score <= 0)
+								cout << "Keep trying, you can get a better score!" << endl;
+							else if (score > 0)
+								cout << "You're a Hangman master!" << endl;
+							cout << endl;
+							dead = true;
+							endgame = true;
+							initializeGame();
+						}
+					}
+				}
+				else
+				{
+					cout<<"Invalid input or character already guessed"<<endl;
+					cout<<"Letters guessed: ";
+					for(int i=0; i < allGuesses.size(); i++)  //prints body parts in hangman vector
+					{
 						if(i>0)
 							cout<<", ";
-                        cout << hangman[i];
-                    }
-                    cout << endl;
-                    cout << endl;
-                    score -= 10;
-
-                    if(queueisEmpty())  //if the body parts queue is empty then the user has used up their 6 guesses and is hung
-                    {
-                        cout << "GAME OVER! You have been hung!" << endl;
-                        cout << " ____  " << endl;
-                        cout << " |  |  " << endl;
-                        cout << " |  O  " << endl;
-                        cout << " | /|\\ " << endl;
-                        cout << " | / \\ " << endl;
-                        cout << " |     " << endl;
-                        cout << "_|_____" << endl;
-                        cout << endl;
-                        cout << "Your final score is: " << score << endl;
-                        if (score <= 0)
-                            cout << "Keep trying, you can get a better score!" << endl;
-                        else if (score > 0)
-                            cout << "You're a Hangman master!" << endl;
-                        cout << endl;
-                        dead = true;
-                        initializeGame();
-                    }
-                }
+						cout << allGuesses[i];
+					}
+					cout << endl;
+				}
             }
         //} //end of for loop body, for loop ends when last word in words text file is unscrambled
     }
