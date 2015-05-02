@@ -1,13 +1,11 @@
 #include "Hangman.h"
 #include <iostream>
 #include <cstdlib>    //Necessary preprocessor directives for following components
-#include <fstream>
+#include <sstream>
 #include <vector>
 #include <algorithm>
 
 using namespace std;
-
-vector<string> words; //This vector is used in most of the functions below, hence global scope.
 
 Hangman::Hangman()  //constructor to initialize queue
 {
@@ -27,7 +25,7 @@ Function prototype:
 void Hangman::loadDirections() const
 
 Function description:
-/*This function prints the directions of the game to the console, keeps the main.cpp neat to define them here.
+This function prints the directions of the game to the console, keeps the main.cpp neat to define them here.
 
 Example:
 Hangman game;
@@ -68,13 +66,13 @@ void Hangman::initializeGame()
 {
     score = 0;
     words.clear();  //clears the words vector so new words can be loaded with each new game
-    cout << "Hello " << getName() << ", please choose a level to begin." << endl;           //Calls getName function which prints user's name to console.
+    cout << "Hello " << name << ", please choose a level to begin." << endl;           //Calls getName function which prints user's name to console.
 	cout << "Choose a difficulty level - ";
 	chooseLevel();                                                                          //Calls chooseLevel function which allows user to select level, level is assigned appropriate text files.
 	cout << endl;
-    loadWords();    //Calls loadWords function which loads words text file into vector.
+    //loadWords();    //Calls loadWords function which loads words text file into vector.
 
-	cout << "Guess a letter for this Level " << getLevel() << " word." << endl;    //Calls getLevel function which prints level integer to console.
+	cout << "Guess a letter for this Level " << level << " word." << endl;    //Calls getLevel function which prints level integer to console.
 
 	hangmanGame();  //Calls the hangmanGame function which essentially runs the entire game.
 
@@ -106,68 +104,29 @@ Post-conditions: picks appropriate text file based on level chosen, must be call
 */
 void Hangman::chooseLevel()
 {
-	int lev;
+	int lev = 0;
 	string s;
-	while (true) {
+	while(lev == 0) {
         cout << "(1) Easy (2) Medium or (3) Hard: ";
-	 	cin >> lev;
-		level = lev;
-	    if (level == 1) {
-			wordsFile = "level_1_words.txt";
-			break;
+		getline(cin, s);
+		if(s == "1" || s == "2" || s == "3") {
+			lev = atoi(s.c_str());
+			level = lev;
+			switch(lev) {
+				case 1:
+					words = {"ring", "dent", "home", "acute", "ghost", "dance", "candy", "state", "moment", "friend"};
+					break;
+				case 2:
+					words = {"bird", "short", "grand", "arrow", "price", "frost", "vision", "danger", "modern", "hustle"};
+					break;
+				case 3:
+					words = {"climb", "silver", "escape", "bucket", "shadow", "attack", "decode", "pistol", "whisper", "incline"};
+					break;
+			}
 		}
-		else if (level == 2) {
-			wordsFile = "level_2_words.txt";
-			break;
-		}
-		else if (level == 3) {
-			wordsFile = "level_3_words.txt";
-			break;
-		}
-		else if (cin.fail()) {
-			cin.clear();
-			getline(cin, s);
+		else
 			cout << "There is no such level, please choose from the options listed." << endl;
-			continue;
-		}
-		else {
-			cout << "There is no such level, please choose from the options listed." << endl;
-			continue;
-		}
 	}
-}
-
-/*
-Function prototype:
-void Hangman::loadWords()
-
-Function description:
-This function opens the words text files, checks for errors, loads the words into a vector called words, and then closes the words text file.
-
-Example:
-Hangman game;
-game.loadWords();
-
-Pre-conditions: called in initializeGame function, must be called after chooseLevel
-Post-conditions: words are loaded into words vector based on level chosen, words remain in vector until game ends and is reinitialized
-*/
-void Hangman::loadWords()
-{
-	ifstream input;
-	input.open(wordsFile.c_str());
-
-	if (input.fail()) {
-		cout << "Could not open " << wordsFile;
-		exit(1);
-	}
-
-	while (!input.eof()) {
-		string s;
-		input >> s;
-		words.push_back(s);
-	}
-
-	input.close();
 }
 
 
@@ -222,10 +181,8 @@ void Hangman::hangmanGame()
             while (guess != words[randomInt])  //while loop runs while user's guess is not the completed word
             {
                 cout<<"Guess: ";
-                cin >> guess;
-                cout<<endl;
-                cin.clear();
-
+				getline(cin, guess);
+                
                 for (int i=0; i<guess.length(); i++)  //converts every input to lowercase
                 {
                     guess[i]=tolower(guess[i]);
@@ -277,7 +234,9 @@ void Hangman::hangmanGame()
 
                     for(int i=0; i < hangman.size(); i++)  //prints body parts in hangman vector
                     {
-                        cout << hangman[i] << ", ";
+						if(i>0)
+							cout<<", ";
+                        cout << hangman[i];
                     }
                     cout << endl;
                     cout << endl;
@@ -326,13 +285,13 @@ Post-conditions: loads body parts from body text file into queue
 */
 void Hangman::enqueueHangman()
 {
-    string body;
-    ifstream bodyFile("body.txt");
+    string body = "head,body,right arm,left arm,right leg,left leg";
+    istringstream bodyText(body); //converts string "body" to stream "bodyText" for getline
 
     //int i = 0;
     while(!queueisFull())
     {
-        getline(bodyFile, body, ',');
+        getline(bodyText, body, ',');
         bodyQueue[queueTail] = body;
         queueTail++;
     }
