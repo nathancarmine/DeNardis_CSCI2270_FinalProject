@@ -1,1 +1,0 @@
-head,body,right arm,left arm,right leg,left leg
